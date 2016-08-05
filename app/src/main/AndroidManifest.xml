@@ -19,7 +19,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".corners.CornersMain"></activity>
+        <activity
+            android:name=".corners.CornersMain" android:label="@string/corners"
+            android:parentActivityName="com.keithmackay.games.androidgames.Home">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.keithmackay.games.androidgames.Home" />>
+        </activity>
+        <activity
+            android:name="._2048._2048Main" android:label="@string/_2048"
+            android:parentActivityName="com.keithmackay.games.androidgames.Home">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.keithmackay.games.androidgames.Home" />>
+        </activity>
     </application>
 
 </manifest>

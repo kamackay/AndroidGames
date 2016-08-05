@@ -8,6 +8,8 @@
     <string name="title_activity_settings">Settings</string>
     <string name="swipe_length">Swipe Length</string>
     <string name="settings_swipeLen">swipeLen</string>
+    <string name="settings_corners_startingTime">cornersStartingTime</string>
+    <string name="settings_corners_timeIncrement">cornersTimeIncrement</string>
 
     <string-array name="swipeOptions">
         <item>100</item>

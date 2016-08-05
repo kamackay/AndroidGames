@@ -20,7 +20,7 @@ public class EndOfGameDialog {
      *
      * @param a the Calling Activity
      */
-    public EndOfGameDialog(final MainActivity a) {
+    public EndOfGameDialog(final _2048Main a) {
         AlertDialog.Builder builder = new AlertDialog.Builder(a);
         final LayoutInflater inflater = (LayoutInflater.from(a));
         View v = inflater.inflate(R.layout.dialog_2048_endofgame, null);

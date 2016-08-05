@@ -16,7 +16,7 @@ import com.keithmackay.games.androidgames.R;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class _2048Main extends AppCompatActivity {
     public static final String VALS = "vals", SCORE_SAVE = "score", MOVES_SAVE = "moves";
     SixteenBlockGrid grid;
     private TextView tvNumberOfMoves, tvScore;
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         grid.setOnGameOver(new Runnable() {
             @Override
             public void run() {
-                new EndOfGameDialog(MainActivity.this).show();
+                new EndOfGameDialog(_2048Main.this).show();
             }
         });
         grid.setOnSwipeHandler(new SwipeHandler() {
