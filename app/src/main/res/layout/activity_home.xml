@@ -17,19 +17,24 @@
 
             <ImageView
                 android:layout_width="300sp"
-                android:layout_height="300sp"
+                android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:contentDescription="@string/_2048"
-                android:paddingTop="100sp"
                 android:onClick="open2048"
+                android:padding="@dimen/activity_home_buttonPadding"
+                android:paddingBottom="@dimen/activity_home_buttonTopBottom"
+                android:paddingTop="@dimen/activity_home_buttonTopBottom"
                 android:src="@drawable/_2048" />
+
             <ImageView
                 android:layout_width="300sp"
-                android:layout_height="300sp"
+                android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:contentDescription="@string/corners"
-                android:paddingTop="100sp"
                 android:onClick="openCorners"
+                android:padding="@dimen/activity_home_buttonPadding"
+                android:paddingBottom="@dimen/activity_home_buttonTopBottom"
+                android:paddingTop="@dimen/activity_home_buttonTopBottom"
                 android:src="@drawable/popong" />
         </LinearLayout>
 

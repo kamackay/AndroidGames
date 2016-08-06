@@ -4,4 +4,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="_15">15sp</dimen>
+    <dimen name="activity_home_buttonTopBottom">150sp</dimen>
+    <dimen name="activity_home_buttonPadding">20sp</dimen>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.keithmackay.games.androidgames">
 
     <application
@@ -15,23 +16,31 @@
             android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".corners.CornersMain" android:label="@string/corners"
-            android:parentActivityName="com.keithmackay.games.androidgames.Home">
+            android:name="._2048.SettingsActivity"
+            android:parentActivityName="com.keithmackay.games.androidgames._2048._2048Main">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.keithmackay.games.androidgames.Home" />>
+                android:value="com.keithmackay.games.androidgames.Home" />
         </activity>
         <activity
-            android:name="._2048._2048Main" android:label="@string/_2048"
+            android:name=".corners.CornersMain"
+            android:label="@string/corners"
             android:parentActivityName="com.keithmackay.games.androidgames.Home">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.keithmackay.games.androidgames.Home" />>
+                android:value="com.keithmackay.games.androidgames.Home" />
+        </activity>
+        <activity
+            android:name="._2048._2048Main"
+            android:label="@string/_2048"
+            android:parentActivityName="com.keithmackay.games.androidgames.Home">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.keithmackay.games.androidgames.Home" />
         </activity>
     </application>
 
