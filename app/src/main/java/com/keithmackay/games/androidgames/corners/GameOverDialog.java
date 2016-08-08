@@ -1,19 +1,23 @@
-package com.keithmackay.games.androidgames._2048;
+package com.keithmackay.games.androidgames.corners;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.keithmackay.games.androidgames.R;
+import com.keithmackay.games.androidgames.allgames.GameActivity;
+
+import java.util.Locale;
 
 /**
  * Created by Keith on 2/17/2016.
  * End of Game Dialog
  */
-public class EndOfGameDialog {
+public class GameOverDialog {
     AlertDialog dialog;
 
     /**
@@ -21,12 +25,18 @@ public class EndOfGameDialog {
      *
      * @param a the Calling Activity
      */
-    public EndOfGameDialog(final _2048Main a) {
+    public GameOverDialog(final GameActivity a, int finalScore) {
         AlertDialog.Builder builder = new AlertDialog.Builder(a);
         final LayoutInflater inflater = (LayoutInflater.from(a));
-        View v = inflater.inflate(R.layout.dialog_2048_endofgame, null);
-        ((TextView) v.findViewById(R.id.dialog_endOfGame_tv))
-                .setText(a.getString(R.string.endOfGame));
+        View v = inflater.inflate(R.layout.dialog_gameover, null);
+        TextView title = (TextView) v.findViewById(R.id.dialog_gameOver_title);
+        if (title != null) title.setText("Game Over!");
+        TextView content = (TextView) v.findViewById(R.id.dialog_gameOver_content);
+        if (content != null)
+            content.setText(String.format(Locale.getDefault(), "Final Score: %1$d\nHigh Score: %2$d",
+                    finalScore,
+                    PreferenceManager.getDefaultSharedPreferences(a.getApplicationContext())
+                            .getInt(a.getString(R.string.settings_highScore), finalScore)));
         builder.setView(v);
         builder.setPositiveButton("Restart", new DialogInterface.OnClickListener() {
             @Override

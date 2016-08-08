@@ -1,4 +1,4 @@
-package com.keithmackay.games.androidgames._2048;
+package com.keithmackay.games.androidgames.allgames;
 
 /**
  * Created by Keith on 2/17/2016.

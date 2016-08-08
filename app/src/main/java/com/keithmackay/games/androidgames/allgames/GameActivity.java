@@ -1,4 +1,4 @@
-package com.keithmackay.games.androidgames;
+package com.keithmackay.games.androidgames.allgames;
 
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
@@ -16,4 +16,6 @@ public abstract class GameActivity extends AppCompatActivity {
     public void sync(Runnable runnable){
         this.runOnUiThread(runnable);
     }
+
+    public abstract void restart();
 }
