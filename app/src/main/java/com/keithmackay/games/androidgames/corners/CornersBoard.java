@@ -52,7 +52,7 @@ public class CornersBoard extends View {
     }
 
     private void init(Context c) {
-        tileLoadTime = 5000;
+        tileLoadTime = 750;
         backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.GRAY);
         backgroundPaint.setStyle(Paint.Style.FILL);
