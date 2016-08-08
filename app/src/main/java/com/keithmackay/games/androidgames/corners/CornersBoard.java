@@ -115,7 +115,7 @@ public class CornersBoard extends View {
                         int col = 0, row = 0;
                         while (upX > (left + ((col + 1) * size))) col++;
                         while (upY > (top + ((row + 1) * size))) row++;
-                        if (!tiles[col][row].isEmptyAndLoaded()) return true;
+                        if (!tiles[col][row].isEmptyOrLoading()) return true;
                         //Toast.makeText(getContext(), String.format(Locale.getDefault(), "Column - %1$d   Row - %2$d", col, row), Toast.LENGTH_SHORT).show();
                         TileInfo tileLeft = findLeft(col, row), tileUp = findUp(col, row), tileDown = findDown(col, row), tileRight = findRight(col, row);
                         int scoreDelta = 0;
@@ -166,7 +166,7 @@ public class CornersBoard extends View {
         TileInfo ti = new TileInfo();
         int temp = x + 1;
         while (temp < colCount) {
-            if (!tiles[temp][y].isEmptyAndLoaded()) {
+            if (!tiles[temp][y].isEmptyOrLoading()) {
                 ti.x = temp;
                 ti.y = y;
                 ti.val = tiles[temp][y].getVal();
@@ -182,7 +182,7 @@ public class CornersBoard extends View {
         TileInfo ti = new TileInfo();
         int temp = y + 1;
         while (temp < rowCount) {
-            if (!tiles[x][temp].isEmptyAndLoaded()) {
+            if (!tiles[x][temp].isEmptyOrLoading()) {
                 ti.x = x;
                 ti.y = temp;
                 ti.val = tiles[x][temp].getVal();
@@ -198,7 +198,7 @@ public class CornersBoard extends View {
         TileInfo ti = new TileInfo();
         int temp = y - 1;
         while (temp >= 0) {
-            if (!tiles[x][temp].isEmptyAndLoaded()) {
+            if (!tiles[x][temp].isEmptyOrLoading()) {
                 ti.x = x;
                 ti.y = temp;
                 ti.val = tiles[x][temp].getVal();
@@ -214,7 +214,7 @@ public class CornersBoard extends View {
         TileInfo ti = new TileInfo();
         int temp = x - 1;
         while (temp >= 0) {
-            if (!tiles[temp][y].isEmptyAndLoaded()) {
+            if (!tiles[temp][y].isEmptyOrLoading()) {
                 ti.x = temp;
                 ti.y = y;
                 ti.val = tiles[temp][y].getVal();
@@ -323,15 +323,16 @@ public class CornersBoard extends View {
             case 2:
                 return Color.GREEN;
             case 3:
-                return Color.MAGENTA;
+                return Color.WHITE;
             case 4:
                 return Color.RED;
             case 5:
                 return Color.CYAN;
             case 6:
-                return Color.argb(0x80, 0xff, 0x69, 0xb4);
+                return Color.MAGENTA;
+                //return Color.argb(0xff, 0xff, 0x69, 0xb4);
             case 7:
-                return Color.argb(0x80, 0xff, 0x8c, 0x0);
+                return Color.argb(0xff, 0xff, 0x8c, 0x0);
             case 8:
                 return Color.GRAY;
         }
@@ -369,8 +370,8 @@ public class CornersBoard extends View {
             return val == -1;
         }
 
-        public boolean isEmptyAndLoaded() {
-            return val == -1 && !loading;
+        public boolean isEmptyOrLoading() {
+            return val == -1 || loading;
         }
 
         public boolean isLoading() {
