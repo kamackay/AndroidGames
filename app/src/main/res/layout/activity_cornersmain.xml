@@ -14,9 +14,9 @@
         android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/corners_playPause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="100sp"
             android:onClick="pause"
             android:src="@android:drawable/ic_media_pause" />
 

@@ -15,20 +15,20 @@ import android.view.View;
 
 import com.keithmackay.games.androidgames.R;
 import com.keithmackay.games.androidgames.allgames.EndOfGameHandler;
-import com.keithmackay.games.androidgames.allgames.ScoreChangeHandler;
 
 import java.util.Random;
 
 public class CornersBoard extends View {
     private final int padding = 3;
     EndOfGameHandler endOfGameHandler;
-    ScoreChangeHandler scoreChangeHandler;
+    GameEventHandler gameEventHandler;
     private Paint backgroundPaint;
     private Paint[] tileColors, loadingTileColors;
     private Bitmap bmapError;
     private int maxVal = 8, tileLoadTime;
     private Tile[][] tiles;
     private int colCount = 8, rowCount = 12;
+    private boolean paused;
 
     public CornersBoard(Context context) {
         super(context);
@@ -52,6 +52,8 @@ public class CornersBoard extends View {
     }
 
     private void init(Context c) {
+        paused = false;
+
         tileLoadTime = 750;
         backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.GRAY);
@@ -107,6 +109,7 @@ public class CornersBoard extends View {
                         return true;
                     case MotionEvent.ACTION_UP:
                         float upX = event.getX(), upY = event.getY();
+                        if (paused) return true;
                         int height = getMeasuredHeight(), width = getMeasuredWidth();
                         int size = Math.min(height / rowCount, width / colCount);
                         int top = (height - size * rowCount) / 2;
@@ -135,7 +138,7 @@ public class CornersBoard extends View {
                             tiles[tileRight.x][tileRight.y].clearVal();
                             scoreDelta++;
                         }
-                        if (scoreDelta > 0) scoreChangeHandler.onScoreChange(scoreDelta);
+                        if (scoreDelta > 0) gameEventHandler.onScoreChange(scoreDelta);
                         else {
                             tiles[col][row].err = true;
                             final int finCol = col, finRow = row;
@@ -178,6 +181,13 @@ public class CornersBoard extends View {
         return ti;
     }
 
+    /**
+     * Quit reading my documentation
+     *
+     * @param x the x index of the clicked tile
+     * @param y the y index of the clicked tile
+     * @return the TileInfo of the fist non-empty tile
+     */
     protected TileInfo findDown(int x, int y) {
         TileInfo ti = new TileInfo();
         int temp = y + 1;
@@ -273,8 +283,17 @@ public class CornersBoard extends View {
                     }
                 }
             }).start();
-            invalidate();
+            postInvalidate();
         }
+    }
+
+    /**
+     * Set whether or not the game is paused
+     *
+     * @param pauseState true if the game is paused, false otherwise
+     */
+    public void setPaused(boolean pauseState) {
+        paused = pauseState;
     }
 
     @Override
@@ -330,7 +349,7 @@ public class CornersBoard extends View {
                 return Color.CYAN;
             case 6:
                 return Color.MAGENTA;
-                //return Color.argb(0xff, 0xff, 0x69, 0xb4);
+            //return Color.argb(0xff, 0xff, 0x69, 0xb4);
             case 7:
                 return Color.argb(0xff, 0xff, 0x8c, 0x0);
             case 8:
@@ -344,8 +363,8 @@ public class CornersBoard extends View {
         bmapError = Bitmap.createScaledBitmap(bmapError, (int) (size * .75), (int) (size * .75), false);
     }
 
-    public void setOnScoreChangeHandler(ScoreChangeHandler handler) {
-        scoreChangeHandler = handler;
+    public void setGameEventHandler(GameEventHandler handler) {
+        gameEventHandler = handler;
     }
 
     public void setEndOfGameHandler(EndOfGameHandler handler) {

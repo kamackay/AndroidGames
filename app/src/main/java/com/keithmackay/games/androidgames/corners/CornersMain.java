@@ -7,13 +7,13 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.keithmackay.games.androidgames.R;
 import com.keithmackay.games.androidgames.allgames.EndOfGameHandler;
 import com.keithmackay.games.androidgames.allgames.GameActivity;
-import com.keithmackay.games.androidgames.allgames.ScoreChangeHandler;
 
 import java.util.Locale;
 
@@ -53,7 +53,7 @@ public class CornersMain extends GameActivity {
         movesView = (TextView) findViewById(R.id.corners_moves);
         board = (CornersBoard) findViewById(R.id.corners_board);
         if (board != null) {
-            board.setOnScoreChangeHandler(new ScoreChangeHandler() {
+            board.setGameEventHandler(new GameEventHandler() {
                 @Override
                 public void onScoreChange(int increment) {
                     score += increment;
@@ -91,18 +91,7 @@ public class CornersMain extends GameActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (keepRunning) {
-                    try {
-                        Thread.sleep(time);
-                        if (!keepRunning) return;
-                        addTile();
-                        if (time > minTime) time -= timeIncrement;
-                        if (time < minTime) time = minTime;
-                    } catch (final Exception e) {
-                        toast(e.getMessage());
-                        break;
-                    }
-                }
+                addLooper();
             }
         }).start();
     }
@@ -113,9 +102,12 @@ public class CornersMain extends GameActivity {
         super.onPause();
     }
 
+    /**
+     * Add A tile to the board
+      */
     public void addTile() {
         //NOTE - this will mainly be run async
-        try {
+        try {//Should *probably* be done on the UI Thread
             this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -131,9 +123,40 @@ public class CornersMain extends GameActivity {
         }
     }
 
+    private void addLooper() {
+        while (keepRunning) {
+            try {
+                Thread.sleep(time / 2);
+                if (!keepRunning) return;
+                addTile();
+                if (time > minTime) time -= timeIncrement;
+                if (time < minTime) time = minTime;
+                Thread.sleep(time / 2);
+            } catch (final Exception e) {
+                toast(e.getMessage());
+                break;
+            }
+        }
+    }
 
     public void pause(View view) {
-        toast("Pause - I'm useless!");
+        if (keepRunning) {
+            keepRunning = false;
+            if (board != null) board.setPaused(true);
+            ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
+            if (playPause != null) playPause.setImageResource(android.R.drawable.ic_media_play);
+        } else {
+            keepRunning = true;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    addLooper();
+                }
+            }).start();
+            if (board != null) board.setPaused(false);
+            ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
+            if (playPause != null) playPause.setImageResource(android.R.drawable.ic_media_pause);
+        }
     }
 
     @Override
