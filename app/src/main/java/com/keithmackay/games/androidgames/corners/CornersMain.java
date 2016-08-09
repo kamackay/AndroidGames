@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,14 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.keithmackay.games.androidgames.R;
-import com.keithmackay.games.androidgames.allgames.EndOfGameHandler;
 import com.keithmackay.games.androidgames.allgames.GameActivity;
 
 import java.util.Locale;
+import java.util.Random;
 
 public class CornersMain extends GameActivity {
-    private final int minTime = 500;
-    private int time, timeIncrement, score, moves;
+    private static final int minTime = 600;
+    private int time, timeIncrement, score, moves, maxValLastIncr;
     private boolean keepRunning = true;
     private CornersBoard board;
     private TextView scoreView, movesView;
@@ -47,6 +48,7 @@ public class CornersMain extends GameActivity {
         time = prefs.getInt(getString(R.string.settings_corners_startingTime), 5000);
         timeIncrement = prefs.getInt(getString(R.string.settings_corners_timeIncrement), 100);
         score = 0;
+        maxValLastIncr = 0;
         moves = 0;
         gameLost = false;
         scoreView = (TextView) findViewById(R.id.corners_score);
@@ -63,14 +65,13 @@ public class CornersMain extends GameActivity {
                         float filled = (float) board.filledTiles() / (float) board.getTilesCount();
                         if (filled <= .35) {
                             //Player is doing well, add more tiles
-                            addTile();
+                            addRandomNumTiles();
                         }
                     }
                 }
-            });
-            board.setEndOfGameHandler(new EndOfGameHandler() {
+
                 @Override
-                public void gameOver(Type type) {
+                public void gameOver(GameEndType type) {
                     switch (type) {
                         case Lose:
                             if (!gameLost) {
@@ -117,7 +118,10 @@ public class CornersMain extends GameActivity {
                 @Override
                 public void run() {
                     try {
-                        board.addTile();
+                        if (board != null) {
+                            if ((moves - maxValLastIncr) >= 30) board.increaseMaxVal();
+                            board.addTile();
+                        }
                     } catch (Exception e) {
                         toast(e.getMessage());
                     }
@@ -142,6 +146,30 @@ public class CornersMain extends GameActivity {
                 break;
             }
         }
+    }
+
+    private static final float add2 = .85f, add3 = .9f, add4 = .95f;
+
+    private void addRandomNumTiles() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    double r = new Random().nextDouble();
+                    int n = 1;
+                    if (r > add4) n = 4;
+                    else if (r > add3) n = 3;
+                    else if (r > add2) n = 2;
+                    for (int i = 0; i < n; i++) {
+                        Thread.sleep(100);
+                        addTile();
+                    }
+                } catch (Exception e) {
+                    Log.e("Error adding tiles", e.getMessage(), e);
+                }
+            }
+        }).start();
+
     }
 
     public void pause(View view) {

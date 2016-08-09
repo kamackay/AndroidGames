@@ -14,21 +14,24 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.keithmackay.games.androidgames.R;
-import com.keithmackay.games.androidgames.allgames.EndOfGameHandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class CornersBoard extends View {
     private final int padding = 3;
-    EndOfGameHandler endOfGameHandler;
     GameEventHandler gameEventHandler;
-    private Paint backgroundPaint;
+    private Paint backgroundPaint, whitePaint;
     private Paint[] tileColors, loadingTileColors;
     private Bitmap bmapError;
-    private int maxVal = 8, tileLoadTime;
+    private int maxVal;
+    private int tileLoadTime;
+    private static final int ABSOLUTE_MAXVAL = 9;
     private Tile[][] tiles;
     private int colCount = 8, rowCount = 12;
     private boolean paused;
+    List<Bitmap> backgrounds;
 
     public CornersBoard(Context context) {
         super(context);
@@ -51,20 +54,26 @@ public class CornersBoard extends View {
         init(context);
     }
 
+    private static final int COLORS_COUNT = 8;
+
     private void init(Context c) {
         paused = false;
 
-        tileLoadTime = 750;
+        tileLoadTime = 500;
+
+        maxVal = COLORS_COUNT;
+
         backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.GRAY);
         backgroundPaint.setStyle(Paint.Style.FILL);
         backgroundPaint.setStrokeWidth(10);
 
-        int colors = 8;
+        whitePaint = new Paint();
+        whitePaint.setColor(Color.WHITE);
 
-        tileColors = new Paint[colors];
-        loadingTileColors = new Paint[colors];
-        for (int i = 0; i < colors; i++) {
+        tileColors = new Paint[COLORS_COUNT];
+        loadingTileColors = new Paint[COLORS_COUNT];
+        for (int i = 0; i < COLORS_COUNT; i++) {
             int col = getColor(i);
             tileColors[i] = new Paint();
             tileColors[i].setColor(col);
@@ -80,32 +89,23 @@ public class CornersBoard extends View {
         final Random rand = new Random();
 
         tiles = new Tile[colCount][rowCount];
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int x = 0; x < colCount && numFilled[0] < max; x++) {
-                    for (int y = 0; y < rowCount; y++) {
-                        tiles[x][y] = new Tile();
-                        if (rand.nextBoolean()) {
-                            tiles[x][y].setVal(rand.nextInt(maxVal) + 1);
-                            numFilled[0]++;
-                        }
-                    }
+        for (int x = 0; x < colCount && numFilled[0] < max; x++) {
+            for (int y = 0; y < rowCount; y++) {
+                tiles[x][y] = new Tile();
+                if (rand.nextBoolean()) {
+                    tiles[x][y].setVal(rand.nextInt(maxVal) + 1);
+                    numFilled[0]++;
                 }
             }
-        }).start();
+        }
+
+        backgrounds = new ArrayList<>();
 
         setOnTouchListener(new OnTouchListener() {
-            private float downX, downY;
-            private long downTime;
-
             @Override
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        downX = event.getX();
-                        downY = event.getY();
-                        downTime = System.currentTimeMillis();
                         return true;
                     case MotionEvent.ACTION_UP:
                         float upX = event.getX(), upY = event.getY();
@@ -123,20 +123,20 @@ public class CornersBoard extends View {
                         TileInfo tileLeft = findLeft(col, row), tileUp = findUp(col, row), tileDown = findDown(col, row), tileRight = findRight(col, row);
                         int scoreDelta = 0;
                         if (!tileLeft.nothing && (tileLeft.val == tileUp.val || tileLeft.val == tileDown.val || tileLeft.val == tileRight.val)) {
+                            scoreDelta += tiles[tileLeft.x][tileLeft.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
                             tiles[tileLeft.x][tileLeft.y].clearVal();
-                            scoreDelta++;
                         }
                         if (!tileUp.nothing && (tileUp.val == tileLeft.val || tileUp.val == tileDown.val || tileUp.val == tileRight.val)) {
+                            scoreDelta += tiles[tileUp.x][tileUp.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
                             tiles[tileUp.x][tileUp.y].clearVal();
-                            scoreDelta++;
                         }
                         if (!tileDown.nothing && (tileDown.val == tileLeft.val || tileDown.val == tileUp.val || tileDown.val == tileRight.val)) {
+                            scoreDelta += tiles[tileDown.x][tileDown.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
                             tiles[tileDown.x][tileDown.y].clearVal();
-                            scoreDelta++;
                         }
                         if (!tileRight.nothing && (tileRight.val == tileLeft.val || tileRight.val == tileUp.val || tileRight.val == tileDown.val)) {
+                            scoreDelta += tiles[tileRight.x][tileRight.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
                             tiles[tileRight.x][tileRight.y].clearVal();
-                            scoreDelta++;
                         }
                         if (scoreDelta > 0) gameEventHandler.onScoreChange(scoreDelta);
                         else {
@@ -204,6 +204,14 @@ public class CornersBoard extends View {
         return ti;
     }
 
+    public void increaseMaxVal() {
+        if (maxVal < ABSOLUTE_MAXVAL) maxVal++;
+    }
+
+    public int getMaxVal() {
+        return maxVal;
+    }
+
     protected TileInfo findUp(int x, int y) {
         TileInfo ti = new TileInfo();
         int temp = y - 1;
@@ -265,21 +273,34 @@ public class CornersBoard extends View {
         }
         if (!found) {
             //Lose the game, all spots are filled
-            endOfGameHandler.gameOver(EndOfGameHandler.Type.Lose);
+            gameEventHandler.gameOver(GameEventHandler.GameEndType.Lose);
         } else {
             tiles[x][y] = new Tile();
-            tiles[x][y].setVal(rand.nextInt(maxVal) + 1);
-            tiles[x][y].setLoading(true);
+            final int val = rand.nextInt(maxVal) + 1;
+            tiles[x][y].setVal(val);
+            tiles[x][y].setLoading(0);
             final int finX = x, finY = y;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        Thread.sleep(tileLoadTime);
-                        tiles[finX][finY].loading = false;
+                        if (val <= COLORS_COUNT) {
+                            final float animationIncrement = .05f;
+                            final int sleepTime = (int) (tileLoadTime * animationIncrement);
+                            //Thread.sleep(tileLoadTime);
+                            //tiles[finX][finY].setLoading(1);
+                            for (float i = 0; i <= 1; i += animationIncrement) {
+                                Thread.sleep(sleepTime);
+                                tiles[finX][finY].setLoading(i);
+                                postInvalidate();
+                            }
+                        } else {
+                            Thread.sleep(tileLoadTime);
+                        }
+                        tiles[finX][finY].setLoading(1);
                         postInvalidate();
                     } catch (Exception e) {
-                        Log.e("Couldn't unload tile", e.getMessage(), e);
+                        Log.e("Couldn't load tile", e.getMessage(), e);
                     }
                 }
             }).start();
@@ -308,13 +329,20 @@ public class CornersBoard extends View {
                 for (int y = 0; y < rowCount; y++) {
                     Tile temp = tiles[x][y];
                     int tempY = top + (size * y) + padding, tempX = left + (size * x) + padding;
-                    if (temp.isEmpty()) {
+                    if (temp == null || temp.isEmpty()) {
                         c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), backgroundPaint);
+                    } else if (temp.isLoading() && temp.getVal() < COLORS_COUNT + 1) {
+                        Paint p = loadingTileColors[temp.getVal() - 1];
+                        p.setAlpha((int) (0xFF * temp.getLoadingProgress()));
+                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), backgroundPaint);
+                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), p);
+                    } else if (temp.getVal() < COLORS_COUNT + 1) {
+                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), tileColors[temp.getVal() - 1]);
                     } else {
-                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding),
-                                temp.isLoading() ? loadingTileColors[temp.getVal() - 1] : tileColors[temp.getVal() - 1]);
+                        Bitmap b = backgrounds.get(temp.getVal() - (COLORS_COUNT + 1));
+                        c.drawBitmap(b, tempX, tempY, backgroundPaint);
                     }
-                    if (temp.err) {
+                    if (temp != null && temp.err) {
                         c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), backgroundPaint);
                         c.drawBitmap(bmapError, tempX + (int) (size * .125), tempY + (int) (size * .125), backgroundPaint);
                     }
@@ -366,7 +394,7 @@ public class CornersBoard extends View {
             case 2:
                 return Color.GREEN;
             case 3:
-                return Color.WHITE;
+                return Color.argb(0xFF, 0x0, 0x78, 0x0);
             case 4:
                 return Color.RED;
             case 5:
@@ -385,14 +413,13 @@ public class CornersBoard extends View {
         int height = getMeasuredHeight(), width = getMeasuredWidth();
         int size = Math.min(height / rowCount, width / colCount);
         bmapError = Bitmap.createScaledBitmap(bmapError, (int) (size * .75), (int) (size * .75), false);
+        backgrounds.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
+                getContext().getResources(), R.drawable.zigzag_yellow_small),
+                size - (padding * 2), size - (padding * 2), false));
     }
 
     public void setGameEventHandler(GameEventHandler handler) {
         gameEventHandler = handler;
-    }
-
-    public void setEndOfGameHandler(EndOfGameHandler handler) {
-        endOfGameHandler = handler;
     }
 
     public class TileInfo {
@@ -402,11 +429,16 @@ public class CornersBoard extends View {
 
     public class Tile {
         public boolean err;
-        private boolean loading = false;
+        private float loading;
         private int val = -1;
 
         public Tile() {
             err = false;
+            loading = 1;
+        }
+
+        public float getLoadingProgress() {
+            return loading;
         }
 
         public boolean isEmpty() {
@@ -414,14 +446,14 @@ public class CornersBoard extends View {
         }
 
         public boolean isEmptyOrLoading() {
-            return val == -1 || loading;
+            return val == -1 || loading != 1;
         }
 
         public boolean isLoading() {
-            return loading;
+            return loading != 1;
         }
 
-        public void setLoading(boolean loading) {
+        public void setLoading(float loading) {
             this.loading = loading;
         }
 

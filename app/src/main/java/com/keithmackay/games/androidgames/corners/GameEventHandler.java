@@ -7,4 +7,6 @@ package com.keithmackay.games.androidgames.corners;
  */
 public abstract class GameEventHandler {
     public abstract void onScoreChange(int increment);
+    public abstract void gameOver(GameEndType type);
+    public enum GameEndType{Win, Lose}
 }
