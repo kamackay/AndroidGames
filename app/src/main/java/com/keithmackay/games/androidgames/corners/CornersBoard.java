@@ -325,6 +325,30 @@ public class CornersBoard extends View {
         }
     }
 
+    /**
+     * Get the number of tiles that are filled on the board
+     *
+     * @return the number of tiles that are filled on the board
+     */
+    public int filledTiles() {
+        int n = 0;
+        for (int x = 0; x < colCount; x++) {
+            for (int y = 0; y < rowCount; y++) {
+                if (!tiles[x][y].isEmpty()) n++;
+            }
+        }
+        return n;
+    }
+
+    /**
+     * Get the total number of tiles (filled and empty) on the board
+     *
+     * @return the column count multiplied by the row count
+     */
+    public int getTilesCount() {
+        return rowCount * colCount;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int parentWidth = MeasureSpec.getSize(widthMeasureSpec);

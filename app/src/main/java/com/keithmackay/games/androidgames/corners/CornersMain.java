@@ -58,10 +58,14 @@ public class CornersMain extends GameActivity {
                 public void onScoreChange(int increment) {
                     score += increment;
                     moves++;
-                    if (scoreView != null)
-                        scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d", score));
-                    if (movesView != null)
-                        movesView.setText(String.format(Locale.getDefault(), "Moves: %1$d", moves));
+                    updateScores();
+                    if (board != null) {
+                        float filled = (float) board.filledTiles() / (float) board.getTilesCount();
+                        if (filled <= .35) {
+                            //Player is doing well, add more tiles
+                            addTile();
+                        }
+                    }
                 }
             });
             board.setEndOfGameHandler(new EndOfGameHandler() {
@@ -94,6 +98,7 @@ public class CornersMain extends GameActivity {
                 addLooper();
             }
         }).start();
+        updateScores();
     }
 
     @Override
@@ -104,7 +109,7 @@ public class CornersMain extends GameActivity {
 
     /**
      * Add A tile to the board
-      */
+     */
     public void addTile() {
         //NOTE - this will mainly be run async
         try {//Should *probably* be done on the UI Thread
@@ -157,6 +162,13 @@ public class CornersMain extends GameActivity {
             ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
             if (playPause != null) playPause.setImageResource(android.R.drawable.ic_media_pause);
         }
+    }
+
+    private void updateScores() {
+        if (scoreView != null)
+            scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d", score));
+        if (movesView != null)
+            movesView.setText(String.format(Locale.getDefault(), "Moves: %1$d", moves));
     }
 
     @Override
