@@ -14,6 +14,7 @@
     <string name="settings_highScore">settings.highScore</string>
     <string name="stress_level">Stress Level</string>
     <string name="settings_boardVals">settings_boardVals</string>
+    <string name="settings_stressLevel">settings_stressLevel</string>
 
     <string-array name="swipeOptions">
         <item>100</item>

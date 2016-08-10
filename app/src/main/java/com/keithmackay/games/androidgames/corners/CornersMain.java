@@ -21,12 +21,13 @@ import java.util.Random;
 
 public class CornersMain extends GameActivity {
     private static final int minTime = 600;
-    private int time, timeIncrement, score, moves, maxValLastIncr, stressLevel;
+    private int time, timeIncrement, score, moves, maxValLastIncr;
     private boolean keepRunning = true;
     private CornersBoard board;
     private TextView scoreView;
     private GameTimer timerView;
     private boolean gameLost;
+    private StressLevel stressLevel;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -74,7 +75,7 @@ public class CornersMain extends GameActivity {
                             if (!gameLost) {
                                 keepRunning = false;
                                 gameLost = true;
-                                if (timerView!= null) timerView.pause();
+                                if (timerView != null) timerView.pause();
                                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                 int highScore = prefs.getInt(getString(R.string.settings_highScore), 0);
                                 if (score > highScore) {
@@ -209,12 +210,13 @@ public class CornersMain extends GameActivity {
     private void updateScores() {
         if (scoreView != null)
             scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d", score));
-            //scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d Moves: %2$d", score, moves));
+        //scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d Moves: %2$d", score, moves));
     }
 
     @Override
     protected void initVals() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        stressLevel = StressLevel.load(prefs.getInt(getString(R.string.settings_stressLevel), 0));
         time = prefs.getInt(getString(R.string.settings_corners_startingTime), 5000);
         timeIncrement = prefs.getInt(getString(R.string.settings_corners_timeIncrement), 100);
         score = 0;
@@ -236,6 +238,34 @@ public class CornersMain extends GameActivity {
     }
 
     public void openSettings(View view) {
+        toast("Show Settings");
+    }
 
+    public enum StressLevel {
+        Low, Medium, High;
+
+        public int val() {
+            switch (this) {
+                case Low:
+                    return 0;
+                case Medium:
+                    return 1;
+                case High:
+                    return 2;
+            }
+            return 0;
+        }
+
+        public static StressLevel load(int level) {
+            switch (level) {
+                default:
+                case 0:
+                    return StressLevel.Low;
+                case 1:
+                    return StressLevel.Medium;
+                case 2:
+                    return StressLevel.High;
+            }
+        }
     }
 }
