@@ -14,16 +14,18 @@ import android.widget.Toast;
 
 import com.keithmackay.games.androidgames.R;
 import com.keithmackay.games.androidgames.allgames.GameActivity;
+import com.keithmackay.games.androidgames.allgames.GameTimer;
 
 import java.util.Locale;
 import java.util.Random;
 
 public class CornersMain extends GameActivity {
     private static final int minTime = 600;
-    private int time, timeIncrement, score, moves, maxValLastIncr;
+    private int time, timeIncrement, score, moves, maxValLastIncr, stressLevel;
     private boolean keepRunning = true;
     private CornersBoard board;
-    private TextView scoreView, movesView;
+    private TextView scoreView;
+    private GameTimer timerView;
     private boolean gameLost;
 
     @Override
@@ -44,16 +46,11 @@ public class CornersMain extends GameActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_cornersmain);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        time = prefs.getInt(getString(R.string.settings_corners_startingTime), 5000);
-        timeIncrement = prefs.getInt(getString(R.string.settings_corners_timeIncrement), 100);
-        score = 0;
-        maxValLastIncr = 0;
-        moves = 0;
-        gameLost = false;
+        hideActionBar();
+        initVals();
         scoreView = (TextView) findViewById(R.id.corners_score);
-        movesView = (TextView) findViewById(R.id.corners_moves);
         board = (CornersBoard) findViewById(R.id.corners_board);
+        timerView = (GameTimer) findViewById(R.id.corners_timer);
         if (board != null) {
             board.setGameEventHandler(new GameEventHandler() {
                 @Override
@@ -63,9 +60,9 @@ public class CornersMain extends GameActivity {
                     updateScores();
                     if (board != null) {
                         float filled = (float) board.filledTiles() / (float) board.getTilesCount();
-                        if (filled <= .35) {
+                        if (filled <= .40) {
                             //Player is doing well, add more tiles
-                            addRandomNumTiles();
+                            addRandomNumTiles(filled);
                         }
                     }
                 }
@@ -77,6 +74,7 @@ public class CornersMain extends GameActivity {
                             if (!gameLost) {
                                 keepRunning = false;
                                 gameLost = true;
+                                if (timerView!= null) timerView.pause();
                                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                 int highScore = prefs.getInt(getString(R.string.settings_highScore), 0);
                                 if (score > highScore) {
@@ -93,6 +91,12 @@ public class CornersMain extends GameActivity {
                 }
             });
         }
+        if (timerView != null) timerView.start();
+        if (savedInstanceState != null) {
+            int[] arr = savedInstanceState.getIntArray(getString(R.string.settings_boardVals));
+            if (board != null && arr != null)
+                board.loadVals(arr);
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -103,8 +107,22 @@ public class CornersMain extends GameActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (!gameLost && board != null) {
+            try {
+                int[] arr = board.getVals();
+                outState.putIntArray(getString(R.string.settings_boardVals), arr);
+            } catch (Exception e) {
+                Log.e("Error saving board", e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
     protected void onPause() {
         keepRunning = false;
+        if (timerView != null) timerView.pause();
         super.onPause();
     }
 
@@ -148,18 +166,12 @@ public class CornersMain extends GameActivity {
         }
     }
 
-    private static final float add2 = .85f, add3 = .9f, add4 = .95f;
-
-    private void addRandomNumTiles() {
+    private void addRandomNumTiles(final float ratio) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    double r = new Random().nextDouble();
-                    int n = 1;
-                    if (r > add4) n = 4;
-                    else if (r > add3) n = 3;
-                    else if (r > add2) n = 2;
+                    int n = (int) (new Random().nextDouble() * (1 / ratio));
                     for (int i = 0; i < n; i++) {
                         Thread.sleep(100);
                         addTile();
@@ -176,10 +188,12 @@ public class CornersMain extends GameActivity {
         if (keepRunning) {
             keepRunning = false;
             if (board != null) board.setPaused(true);
+            if (timerView != null) timerView.pause();
             ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
-            if (playPause != null) playPause.setImageResource(android.R.drawable.ic_media_play);
+            if (playPause != null) playPause.setImageResource(R.drawable.ic_play_arrow);
         } else {
             keepRunning = true;
+            if (timerView != null) timerView.start();
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -188,19 +202,40 @@ public class CornersMain extends GameActivity {
             }).start();
             if (board != null) board.setPaused(false);
             ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
-            if (playPause != null) playPause.setImageResource(android.R.drawable.ic_media_pause);
+            if (playPause != null) playPause.setImageResource(R.drawable.ic_pause_white_24dp);
         }
     }
 
     private void updateScores() {
         if (scoreView != null)
             scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d", score));
-        if (movesView != null)
-            movesView.setText(String.format(Locale.getDefault(), "Moves: %1$d", moves));
+            //scoreView.setText(String.format(Locale.getDefault(), "Score: %1$d Moves: %2$d", score, moves));
+    }
+
+    @Override
+    protected void initVals() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        time = prefs.getInt(getString(R.string.settings_corners_startingTime), 5000);
+        timeIncrement = prefs.getInt(getString(R.string.settings_corners_timeIncrement), 100);
+        score = 0;
+        maxValLastIncr = 0;
+        moves = 0;
+        gameLost = false;
+        updateScores();
     }
 
     @Override
     public void restart() {
-        toast("Restart - I'm useless!");
+        initVals();
+        if (board != null) board.startOver();
+        if (timerView != null) timerView.restart();
+    }
+
+    public void reset(View view) {
+        restart();
+    }
+
+    public void openSettings(View view) {
+
     }
 }

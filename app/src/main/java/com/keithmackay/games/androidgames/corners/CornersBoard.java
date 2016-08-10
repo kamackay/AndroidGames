@@ -84,20 +84,8 @@ public class CornersBoard extends View {
             loadingTileColors[i].setStyle(Paint.Style.FILL);
         }
 
-        final int[] numFilled = {0};
-        final int max = (colCount * rowCount) / 2;
-        final Random rand = new Random();
-
         tiles = new Tile[colCount][rowCount];
-        for (int x = 0; x < colCount && numFilled[0] < max; x++) {
-            for (int y = 0; y < rowCount; y++) {
-                tiles[x][y] = new Tile();
-                if (rand.nextBoolean()) {
-                    tiles[x][y].setVal(rand.nextInt(maxVal) + 1);
-                    numFilled[0]++;
-                }
-            }
-        }
+        setupTiles();
 
         backgrounds = new ArrayList<>();
 
@@ -123,19 +111,23 @@ public class CornersBoard extends View {
                         TileInfo tileLeft = findLeft(col, row), tileUp = findUp(col, row), tileDown = findDown(col, row), tileRight = findRight(col, row);
                         int scoreDelta = 0;
                         if (!tileLeft.nothing && (tileLeft.val == tileUp.val || tileLeft.val == tileDown.val || tileLeft.val == tileRight.val)) {
-                            scoreDelta += tiles[tileLeft.x][tileLeft.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
+                            scoreDelta += tiles[tileLeft.x][tileLeft.y].getVal() > (COLORS_COUNT + 1) ?
+                                    2 * Math.abs(col - tileLeft.x) : Math.abs(col - tileLeft.x);
                             tiles[tileLeft.x][tileLeft.y].clearVal();
                         }
                         if (!tileUp.nothing && (tileUp.val == tileLeft.val || tileUp.val == tileDown.val || tileUp.val == tileRight.val)) {
-                            scoreDelta += tiles[tileUp.x][tileUp.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
+                            scoreDelta += tiles[tileUp.x][tileUp.y].getVal() > (COLORS_COUNT + 1) ?
+                                    2 * Math.abs(row - tileUp.y) : Math.abs(row - tileUp.y);
                             tiles[tileUp.x][tileUp.y].clearVal();
                         }
                         if (!tileDown.nothing && (tileDown.val == tileLeft.val || tileDown.val == tileUp.val || tileDown.val == tileRight.val)) {
-                            scoreDelta += tiles[tileDown.x][tileDown.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
+                            scoreDelta += tiles[tileDown.x][tileDown.y].getVal() > (COLORS_COUNT + 1) ?
+                                    2 * Math.abs(row - tileDown.y) : Math.abs(row - tileDown.y);
                             tiles[tileDown.x][tileDown.y].clearVal();
                         }
                         if (!tileRight.nothing && (tileRight.val == tileLeft.val || tileRight.val == tileUp.val || tileRight.val == tileDown.val)) {
-                            scoreDelta += tiles[tileRight.x][tileRight.y].getVal() > (COLORS_COUNT + 1) ? 2 : 1;
+                            scoreDelta += tiles[tileRight.x][tileRight.y].getVal() > (COLORS_COUNT + 1) ?
+                                    2 * Math.abs(col - tileRight.x) : Math.abs(col - tileRight.x);
                             tiles[tileRight.x][tileRight.y].clearVal();
                         }
                         if (scoreDelta > 0) gameEventHandler.onScoreChange(scoreDelta);
@@ -163,6 +155,28 @@ public class CornersBoard extends View {
             }
         });
         bmapError = BitmapFactory.decodeResource(c.getResources(), R.drawable.err);
+    }
+
+    public void startOver() {
+        maxVal = COLORS_COUNT;
+        paused = false;
+        setupTiles();
+        postInvalidate();
+    }
+
+    private void setupTiles() {
+        final int[] numFilled = {0};
+        final int max = (colCount * rowCount) / 2;
+        final Random rand = new Random();
+        for (int x = 0; x < colCount && numFilled[0] < max; x++) {
+            for (int y = 0; y < rowCount; y++) {
+                tiles[x][y] = new Tile();
+                if (rand.nextBoolean()) {
+                    tiles[x][y].setVal(rand.nextInt(maxVal) + 1);
+                    numFilled[0]++;
+                }
+            }
+        }
     }
 
     protected TileInfo findRight(int x, int y) {
@@ -317,6 +331,25 @@ public class CornersBoard extends View {
         paused = pauseState;
     }
 
+    public int[] getVals() {
+        int[] vals = new int[colCount * rowCount];
+        for (int x = 0; x < colCount; x++) {
+            for (int y = 0; y < rowCount; y++) {
+                vals[x + (y * colCount)] = tiles[x][y].getVal();
+            }
+        }
+        return vals;
+    }
+
+    public void loadVals(int[] vals) {
+        for (int x = 0; x < colCount; x++) {
+            for (int y = 0; y < rowCount; y++) {
+                tiles[x][y].setVal(vals[x + (y * colCount)]);
+            }
+        }
+        postInvalidate();
+    }
+
     @Override
     protected void onDraw(Canvas c) {
         super.onDraw(c);
@@ -327,24 +360,34 @@ public class CornersBoard extends View {
         try {
             for (int x = 0; x < colCount; x++) {
                 for (int y = 0; y < rowCount; y++) {
-                    Tile temp = tiles[x][y];
-                    int tempY = top + (size * y) + padding, tempX = left + (size * x) + padding;
-                    if (temp == null || temp.isEmpty()) {
-                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), backgroundPaint);
-                    } else if (temp.isLoading() && temp.getVal() < COLORS_COUNT + 1) {
-                        Paint p = loadingTileColors[temp.getVal() - 1];
-                        p.setAlpha((int) (0xFF * temp.getLoadingProgress()));
-                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), backgroundPaint);
-                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), p);
-                    } else if (temp.getVal() < COLORS_COUNT + 1) {
-                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), tileColors[temp.getVal() - 1]);
-                    } else {
-                        Bitmap b = backgrounds.get(temp.getVal() - (COLORS_COUNT + 1));
-                        c.drawBitmap(b, tempX, tempY, backgroundPaint);
-                    }
-                    if (temp != null && temp.err) {
-                        c.drawRect(tempX, tempY, tempX + (size - padding), tempY + (size - padding), backgroundPaint);
-                        c.drawBitmap(bmapError, tempX + (int) (size * .125), tempY + (int) (size * .125), backgroundPaint);
+                    try {
+                        Tile temp = tiles[x][y];
+                        int tempY = top + (size * y) + padding, tempX = left + (size * x) + padding;
+                        if (temp == null || temp.isEmpty()) {
+                            c.drawRect(tempX, tempY, tempX + (size - padding),
+                                    tempY + (size - padding), backgroundPaint);
+                        } else if (temp.isLoading() && temp.getVal() < COLORS_COUNT + 1) {
+                            Paint p = loadingTileColors[temp.getVal() - 1];
+                            p.setAlpha((int) (0xFF * temp.getLoadingProgress()));
+                            c.drawRect(tempX, tempY, tempX + (size - padding),
+                                    tempY + (size - padding), backgroundPaint);
+                            c.drawRect(tempX, tempY, tempX + (size - padding),
+                                    tempY + (size - padding), p);
+                        } else if (temp.getVal() < COLORS_COUNT + 1) {
+                            c.drawRect(tempX, tempY, tempX + (size - padding),
+                                    tempY + (size - padding), tileColors[(temp.getVal() - 1) % COLORS_COUNT]);
+                        } else {
+                            Bitmap b = backgrounds.get(temp.getVal() - (COLORS_COUNT + 1));
+                            c.drawBitmap(b, tempX, tempY, backgroundPaint);
+                        }
+                        if (temp != null && temp.err) {
+                            c.drawRect(tempX, tempY, tempX + (size - padding),
+                                    tempY + (size - padding), backgroundPaint);
+                            c.drawBitmap(bmapError, tempX + (int) (size * .125),
+                                    tempY + (int) (size * .125), backgroundPaint);
+                        }
+                    } catch (Exception e) {
+                        Log.e("Error during draw", e.getMessage(), e);
                     }
                 }
             }/**/

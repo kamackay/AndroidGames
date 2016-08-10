@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/activityBack"
     android:orientation="vertical"
     android:padding="25sp"
     tools:context=".corners.CornersMain">
@@ -18,22 +19,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="pause"
-            android:src="@android:drawable/ic_media_pause" />
+            android:src="@drawable/ic_pause_white_24dp" />
+
+        <ImageButton
+            android:id="@+id/corners_restart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="reset"
+            android:src="@drawable/ic_loop_white_24dp" />
 
         <TextView
             android:id="@+id/corners_score"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:maxWidth="200sp"
-            android:padding="@dimen/_15"
-            android:text="Score:" />
+            android:padding="@dimen/_15" />
 
-        <TextView
-            android:id="@+id/corners_moves"
+        <ImageButton
+            android:id="@+id/corners_settingsButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:padding="@dimen/_15"
-            android:text="Moves:" />
+            android:layout_height="wrap_content"
+            android:onClick="openSettings"
+            android:src="@drawable/ic_settings_white_24dp" />
+
+        <com.keithmackay.games.androidgames.allgames.GameTimer
+            android:id="@+id/corners_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/_15"
+            android:paddingStart="@dimen/_15" />
+
     </LinearLayout>
 
     <com.keithmackay.games.androidgames.corners.CornersBoard

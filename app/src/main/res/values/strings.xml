@@ -12,6 +12,8 @@
     <string name="settings_corners_timeIncrement">cornersTimeIncrement</string>
     <string name="pause">Pause</string>
     <string name="settings_highScore">settings.highScore</string>
+    <string name="stress_level">Stress Level</string>
+    <string name="settings_boardVals">settings_boardVals</string>
 
     <string-array name="swipeOptions">
         <item>100</item>

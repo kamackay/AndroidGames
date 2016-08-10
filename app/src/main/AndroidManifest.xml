@@ -13,7 +13,7 @@
             android:name=".Home"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,7 +21,8 @@
         </activity>
         <activity
             android:name="._2048.SettingsActivity"
-            android:parentActivityName="com.keithmackay.games.androidgames._2048._2048Main">
+            android:parentActivityName="com.keithmackay.games.androidgames._2048._2048Main"
+            android:theme="@style/FullscreenTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithmackay.games.androidgames.Home" />
@@ -29,7 +30,8 @@
         <activity
             android:name=".corners.CornersMain"
             android:label="@string/corners"
-            android:parentActivityName="com.keithmackay.games.androidgames.Home">
+            android:parentActivityName="com.keithmackay.games.androidgames.Home"
+            android:theme="@style/FullscreenTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithmackay.games.androidgames.Home" />
@@ -37,7 +39,8 @@
         <activity
             android:name="._2048._2048Main"
             android:label="@string/_2048"
-            android:parentActivityName="com.keithmackay.games.androidgames.Home">
+            android:parentActivityName="com.keithmackay.games.androidgames.Home"
+            android:theme="@style/FullscreenTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithmackay.games.androidgames.Home" />
