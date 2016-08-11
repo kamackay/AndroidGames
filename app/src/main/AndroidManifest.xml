@@ -45,6 +45,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithmackay.games.androidgames.Home" />
         </activity>
+        <activity android:name=".CornersMain2"></activity>
     </application>
 
 </manifest>
