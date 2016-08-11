@@ -15,6 +15,7 @@
     <string name="stress_level">Stress Level</string>
     <string name="settings_boardVals">settings_boardVals</string>
     <string name="settings_stressLevel">settings_stressLevel</string>
+    <string name="settings_corners_boardData">cornersBoardData</string>
 
     <string-array name="swipeOptions">
         <item>100</item>
