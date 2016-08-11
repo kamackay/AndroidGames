@@ -1,14 +1,22 @@
 package com.keithmackay.games.androidgames.corners;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +36,6 @@ public class CornersMain extends GameActivity {
     private GameTimer timerView;
     private boolean gameLost;
     private StressLevel stressLevel;
-
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -151,6 +158,25 @@ public class CornersMain extends GameActivity {
         }
     }
 
+    public void setStressLevel(StressLevel level) {
+        stressLevel = level;
+        LinearLayout root = (LinearLayout) findViewById(R.id.corners_root);
+        switch (level) {
+            case Low:
+                if (root != null)
+                    root.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.cornersBackground_low));
+                break;
+            case Medium:
+                if (root != null)
+                    root.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.cornersBackground_medium));
+                break;
+            case High:
+                if (root != null)
+                    root.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.cornersBackground_high));
+                break;
+        }
+    }
+
     private void addLooper() {
         while (keepRunning) {
             try {
@@ -216,7 +242,7 @@ public class CornersMain extends GameActivity {
     @Override
     protected void initVals() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        stressLevel = StressLevel.load(prefs.getInt(getString(R.string.settings_stressLevel), 0));
+        setStressLevel(StressLevel.load(prefs.getInt(getString(R.string.settings_stressLevel), StressLevel.Low.val())));
         time = prefs.getInt(getString(R.string.settings_corners_startingTime), 5000);
         timeIncrement = prefs.getInt(getString(R.string.settings_corners_timeIncrement), 100);
         score = 0;
@@ -238,23 +264,54 @@ public class CornersMain extends GameActivity {
     }
 
     public void openSettings(View view) {
-        toast("Show Settings");
+        AlertDialog.Builder settingsDialog = new AlertDialog.Builder(CornersMain.this);
+        final LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.corners_settings,
+                (ViewGroup) findViewById(R.id.cornersSettings_root));
+        final Spinner stressLevelSpinner = (Spinner) layout.findViewById(R.id.cornersSettings_stressLevelSpinner);
+        if (stressLevelSpinner != null) {
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    R.array.stress_level, android.R.layout.simple_spinner_item);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            stressLevelSpinner.setAdapter(adapter);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            stressLevelSpinner.setSelection(prefs.getInt(getString(R.string.settings_stressLevel), 0));
+        }
+        settingsDialog.setView(layout);
+        settingsDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+                if (stressLevelSpinner != null) {
+                    int x = stressLevelSpinner.getSelectedItemPosition();
+                    edit.putInt(getString(R.string.settings_stressLevel), x);
+                    setStressLevel(StressLevel.load(x));
+                }
+                edit.apply();
+                dialog.dismiss();
+            }
+        });
+        settingsDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                dialog.dismiss();
+            }
+        });
+        final AlertDialog dialog = settingsDialog.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg0) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_red_dark));
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                        .setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_red_dark));
+            }
+        });
+        dialog.show();
     }
 
     public enum StressLevel {
         Low, Medium, High;
-
-        public int val() {
-            switch (this) {
-                case Low:
-                    return 0;
-                case Medium:
-                    return 1;
-                case High:
-                    return 2;
-            }
-            return 0;
-        }
 
         public static StressLevel load(int level) {
             switch (level) {
@@ -266,6 +323,18 @@ public class CornersMain extends GameActivity {
                 case 2:
                     return StressLevel.High;
             }
+        }
+
+        public int val() {
+            switch (this) {
+                case Low:
+                    return 0;
+                case Medium:
+                    return 1;
+                case High:
+                    return 2;
+            }
+            return 0;
         }
     }
 }

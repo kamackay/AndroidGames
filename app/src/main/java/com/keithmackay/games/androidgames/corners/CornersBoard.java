@@ -20,18 +20,19 @@ import java.util.List;
 import java.util.Random;
 
 public class CornersBoard extends View {
+    private static final int ABSOLUTE_MAXVAL = 9;
+    private static final int COLORS_COUNT = 8;
     private final int padding = 3;
     GameEventHandler gameEventHandler;
+    List<Bitmap> backgrounds;
     private Paint backgroundPaint, whitePaint;
     private Paint[] tileColors, loadingTileColors;
     private Bitmap bmapError;
     private int maxVal;
     private int tileLoadTime;
-    private static final int ABSOLUTE_MAXVAL = 9;
     private Tile[][] tiles;
     private int colCount = 8, rowCount = 12;
     private boolean paused;
-    List<Bitmap> backgrounds;
 
     public CornersBoard(Context context) {
         super(context);
@@ -53,8 +54,6 @@ public class CornersBoard extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
     }
-
-    private static final int COLORS_COUNT = 8;
 
     private void init(Context c) {
         paused = false;
@@ -96,60 +95,64 @@ public class CornersBoard extends View {
                     case MotionEvent.ACTION_DOWN:
                         return true;
                     case MotionEvent.ACTION_UP:
-                        float upX = event.getX(), upY = event.getY();
-                        if (paused) return true;
-                        int height = getMeasuredHeight(), width = getMeasuredWidth();
-                        int size = Math.min(height / rowCount, width / colCount);
-                        int top = (height - size * rowCount) / 2;
-                        int left = (width - size * colCount) / 2;
-                        //Find the column and that this would be in
-                        int col = 0, row = 0;
-                        while (upX > (left + ((col + 1) * size))) col++;
-                        while (upY > (top + ((row + 1) * size))) row++;
-                        if (!tiles[col][row].isEmptyOrLoading()) return true;
-                        //Toast.makeText(getContext(), String.format(Locale.getDefault(), "Column - %1$d   Row - %2$d", col, row), Toast.LENGTH_SHORT).show();
-                        TileInfo tileLeft = findLeft(col, row), tileUp = findUp(col, row), tileDown = findDown(col, row), tileRight = findRight(col, row);
-                        int scoreDelta = 0;
-                        if (!tileLeft.nothing && (tileLeft.val == tileUp.val || tileLeft.val == tileDown.val || tileLeft.val == tileRight.val)) {
-                            scoreDelta += tiles[tileLeft.x][tileLeft.y].getVal() > (COLORS_COUNT + 1) ?
-                                    2 * Math.abs(col - tileLeft.x) : Math.abs(col - tileLeft.x);
-                            tiles[tileLeft.x][tileLeft.y].clearVal();
-                        }
-                        if (!tileUp.nothing && (tileUp.val == tileLeft.val || tileUp.val == tileDown.val || tileUp.val == tileRight.val)) {
-                            scoreDelta += tiles[tileUp.x][tileUp.y].getVal() > (COLORS_COUNT + 1) ?
-                                    2 * Math.abs(row - tileUp.y) : Math.abs(row - tileUp.y);
-                            tiles[tileUp.x][tileUp.y].clearVal();
-                        }
-                        if (!tileDown.nothing && (tileDown.val == tileLeft.val || tileDown.val == tileUp.val || tileDown.val == tileRight.val)) {
-                            scoreDelta += tiles[tileDown.x][tileDown.y].getVal() > (COLORS_COUNT + 1) ?
-                                    2 * Math.abs(row - tileDown.y) : Math.abs(row - tileDown.y);
-                            tiles[tileDown.x][tileDown.y].clearVal();
-                        }
-                        if (!tileRight.nothing && (tileRight.val == tileLeft.val || tileRight.val == tileUp.val || tileRight.val == tileDown.val)) {
-                            scoreDelta += tiles[tileRight.x][tileRight.y].getVal() > (COLORS_COUNT + 1) ?
-                                    2 * Math.abs(col - tileRight.x) : Math.abs(col - tileRight.x);
-                            tiles[tileRight.x][tileRight.y].clearVal();
-                        }
-                        if (scoreDelta > 0) gameEventHandler.onScoreChange(scoreDelta);
-                        else {
-                            tiles[col][row].err = true;
-                            final int finCol = col, finRow = row;
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Thread.sleep(500);
-                                        tiles[finCol][finRow].err = false;
-                                        postInvalidate();
-                                    } catch (Exception e) {
-                                        Log.e("Error hiding X image", e.getMessage(), e);
+                        try {
+                            float upX = event.getX(), upY = event.getY();
+                            if (paused) return true;
+                            int height = getMeasuredHeight(), width = getMeasuredWidth();
+                            int size = Math.min(height / rowCount, width / colCount);
+                            int top = (height - size * rowCount) / 2;
+                            int left = (width - size * colCount) / 2;
+                            //Find the column and that this would be in
+                            int col = 0, row = 0;
+                            while (upX > (left + ((col + 1) * size))) col++;
+                            while (upY > (top + ((row + 1) * size))) row++;
+                            if (!tiles[col][row].isEmptyOrLoading()) return true;
+                            //Toast.makeText(getContext(), String.format(Locale.getDefault(), "Column - %1$d   Row - %2$d", col, row), Toast.LENGTH_SHORT).show();
+                            TileInfo tileLeft = findLeft(col, row), tileUp = findUp(col, row), tileDown = findDown(col, row), tileRight = findRight(col, row);
+                            int scoreDelta = 0;
+                            if (!tileLeft.nothing && (tileLeft.val == tileUp.val || tileLeft.val == tileDown.val || tileLeft.val == tileRight.val)) {
+                                scoreDelta += tiles[tileLeft.x][tileLeft.y].getVal() > (COLORS_COUNT + 1) ?
+                                        2 * Math.abs(col - tileLeft.x) : Math.abs(col - tileLeft.x);
+                                tiles[tileLeft.x][tileLeft.y].clearVal();
+                            }
+                            if (!tileUp.nothing && (tileUp.val == tileLeft.val || tileUp.val == tileDown.val || tileUp.val == tileRight.val)) {
+                                scoreDelta += tiles[tileUp.x][tileUp.y].getVal() > (COLORS_COUNT + 1) ?
+                                        2 * Math.abs(row - tileUp.y) : Math.abs(row - tileUp.y);
+                                tiles[tileUp.x][tileUp.y].clearVal();
+                            }
+                            if (!tileDown.nothing && (tileDown.val == tileLeft.val || tileDown.val == tileUp.val || tileDown.val == tileRight.val)) {
+                                scoreDelta += tiles[tileDown.x][tileDown.y].getVal() > (COLORS_COUNT + 1) ?
+                                        2 * Math.abs(row - tileDown.y) : Math.abs(row - tileDown.y);
+                                tiles[tileDown.x][tileDown.y].clearVal();
+                            }
+                            if (!tileRight.nothing && (tileRight.val == tileLeft.val || tileRight.val == tileUp.val || tileRight.val == tileDown.val)) {
+                                scoreDelta += tiles[tileRight.x][tileRight.y].getVal() > (COLORS_COUNT + 1) ?
+                                        2 * Math.abs(col - tileRight.x) : Math.abs(col - tileRight.x);
+                                tiles[tileRight.x][tileRight.y].clearVal();
+                            }
+                            if (scoreDelta > 0) gameEventHandler.onScoreChange(scoreDelta);
+                            else {
+                                tiles[col][row].err = true;
+                                final int finCol = col, finRow = row;
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Thread.sleep(500);
+                                            tiles[finCol][finRow].err = false;
+                                            postInvalidate();
+                                        } catch (Exception e) {
+                                            Log.e("Error hiding X image", e.getMessage(), e);
+                                        }
                                     }
-                                }
-                            }).start();
-                            //TODO: Add two more tiles? / Lower the score?
+                                }).start();
+                                //TODO: Add two more tiles? / Lower the score?
+                            }
+                            invalidate();
+                            return true;
+                        } catch (Exception e) {
+                            Log.e("Error in click", e.getMessage(), e);
                         }
-                        invalidate();
-                        return true;
                 }
                 return false;
             }
@@ -166,13 +169,13 @@ public class CornersBoard extends View {
 
     private void setupTiles() {
         final int[] numFilled = {0};
-        final int max = (colCount * rowCount) / 2;
+        final int maxVal = (colCount * rowCount) / 2;
         final Random rand = new Random();
-        for (int x = 0; x < colCount && numFilled[0] < max; x++) {
+        for (int x = 0; x < colCount; x++) {
             for (int y = 0; y < rowCount; y++) {
                 tiles[x][y] = new Tile();
-                if (rand.nextBoolean()) {
-                    tiles[x][y].setVal(rand.nextInt(maxVal) + 1);
+                if (numFilled[0] < maxVal && rand.nextBoolean()) {
+                    tiles[x][y].setVal(rand.nextInt(this.maxVal) + 1);
                     numFilled[0]++;
                 }
             }

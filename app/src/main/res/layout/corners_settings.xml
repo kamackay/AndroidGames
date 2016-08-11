@@ -1,14 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cornersSettings_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" android:padding="@dimen/_15"
-    android:orientation="vertical">
-<LinearLayout
-    android:layout_width="match_parent" android:orientation="horizontal"
-    android:layout_height="wrap_content">
-    <TextView
-        android:layout_width="wrap_content" android:text="@string/stress_level"
-        android:layout_height="wrap_content" />
+    android:layout_height="match_parent"
+    android:minHeight="100sp"
+    android:padding="@dimen/_15">
 
-</LinearLayout>
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="100sp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/stress_level" />
+
+            <Spinner
+                android:id="@+id/cornersSettings_stressLevelSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
