@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.keithmackay.games.androidgames.R;
-import com.keithmackay.games.androidgames.allgames.ScoreChangeHandler;
+import com.keithmackay.games.androidgames.common.ScoreChangeHandler;
 
 import java.util.ArrayList;
 import java.util.Locale;

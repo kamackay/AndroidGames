@@ -1,4 +1,4 @@
-package com.keithmackay.games.androidgames.allgames;
+package com.keithmackay.games.androidgames.common;
 
 import android.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +23,7 @@ public abstract class GameActivity extends AppCompatActivity {
         this.runOnUiThread(runnable);
     }
 
-    protected abstract void initVals();
+    protected abstract void initValues();
 
     public abstract void restart();
 }

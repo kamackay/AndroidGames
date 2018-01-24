@@ -54,6 +54,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.keithmackay.games.androidgames.Home" />
         </activity>
+        <activity
+            android:name=".render.RenderMain"
+            android:parentActivityName="com.keithmackay.games.androidgames.Home"
+            android:label="Test"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.keithmackay.games.androidgames.Home" />
+        </activity>
     </application>
 
 </manifest>

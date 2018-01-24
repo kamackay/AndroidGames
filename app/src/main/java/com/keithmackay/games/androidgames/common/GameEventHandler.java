@@ -1,4 +1,4 @@
-package com.keithmackay.games.androidgames.corners;
+package com.keithmackay.games.androidgames.common;
 
 /**
  * Created by Keith MacKay on 8/9/2016.

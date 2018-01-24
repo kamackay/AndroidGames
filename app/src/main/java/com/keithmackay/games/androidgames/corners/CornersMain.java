@@ -21,8 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.keithmackay.games.androidgames.R;
-import com.keithmackay.games.androidgames.allgames.GameActivity;
-import com.keithmackay.games.androidgames.allgames.GameTimer;
+import com.keithmackay.games.androidgames.common.GameActivity;
+import com.keithmackay.games.androidgames.common.GameEventHandler;
+import com.keithmackay.games.androidgames.common.GameTimer;
 
 import java.util.Locale;
 import java.util.Random;
@@ -36,6 +37,7 @@ public class CornersMain extends GameActivity {
     private GameTimer timerView;
     private boolean gameLost;
     private StressLevel stressLevel;
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -55,10 +57,10 @@ public class CornersMain extends GameActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_cornersmain);
         hideActionBar();
-        initVals();
-        scoreView = (TextView) findViewById(R.id.corners_score);
-        board = (CornersBoard) findViewById(R.id.corners_board);
-        timerView = (GameTimer) findViewById(R.id.corners_timer);
+        initValues();
+        scoreView = findViewById(R.id.corners_score);
+        board = findViewById(R.id.corners_board);
+        timerView = findViewById(R.id.corners_timer);
         if (board != null) {
             board.setGameEventHandler(new GameEventHandler() {
                 @Override
@@ -160,7 +162,7 @@ public class CornersMain extends GameActivity {
 
     public void setStressLevel(StressLevel level) {
         stressLevel = level;
-        LinearLayout root = (LinearLayout) findViewById(R.id.corners_root);
+        LinearLayout root = findViewById(R.id.corners_root);
         switch (level) {
             case Low:
                 if (root != null)
@@ -216,7 +218,7 @@ public class CornersMain extends GameActivity {
             keepRunning = false;
             if (board != null) board.setPaused(true);
             if (timerView != null) timerView.pause();
-            ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
+            ImageButton playPause = findViewById(R.id.corners_playPause);
             if (playPause != null) playPause.setImageResource(R.drawable.ic_play_arrow);
         } else {
             keepRunning = true;
@@ -228,7 +230,7 @@ public class CornersMain extends GameActivity {
                 }
             }).start();
             if (board != null) board.setPaused(false);
-            ImageButton playPause = (ImageButton) findViewById(R.id.corners_playPause);
+            ImageButton playPause = findViewById(R.id.corners_playPause);
             if (playPause != null) playPause.setImageResource(R.drawable.ic_pause_white_24dp);
         }
     }
@@ -240,7 +242,7 @@ public class CornersMain extends GameActivity {
     }
 
     @Override
-    protected void initVals() {
+    protected void initValues() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         setStressLevel(StressLevel.load(prefs.getInt(getString(R.string.settings_stressLevel), StressLevel.Low.val())));
         time = prefs.getInt(getString(R.string.settings_corners_startingTime), 5000);
@@ -254,7 +256,7 @@ public class CornersMain extends GameActivity {
 
     @Override
     public void restart() {
-        initVals();
+        initValues();
         if (board != null) board.startOver();
         if (timerView != null) timerView.restart();
     }
@@ -268,7 +270,7 @@ public class CornersMain extends GameActivity {
         final LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.corners_settings,
                 (ViewGroup) findViewById(R.id.cornersSettings_root));
-        final Spinner stressLevelSpinner = (Spinner) layout.findViewById(R.id.cornersSettings_stressLevelSpinner);
+        final Spinner stressLevelSpinner = layout.findViewById(R.id.cornersSettings_stressLevelSpinner);
         if (stressLevelSpinner != null) {
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                     R.array.stress_level, android.R.layout.simple_spinner_item);

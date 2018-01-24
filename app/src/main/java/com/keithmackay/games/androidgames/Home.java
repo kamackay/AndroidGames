@@ -11,6 +11,7 @@ import android.view.WindowManager;
 
 import com.keithmackay.games.androidgames._2048._2048Main;
 import com.keithmackay.games.androidgames.corners.CornersMain;
+import com.keithmackay.games.androidgames.render.RenderMain;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -38,5 +39,9 @@ public class Home extends AppCompatActivity {
 
     public void openCorners(View view) {
         startActivity(new Intent(getApplicationContext(), CornersMain.class));
+    }
+
+    public void openRenderTests(View view) {
+        startActivity(new Intent(getApplicationContext(), RenderMain.class));
     }
 }

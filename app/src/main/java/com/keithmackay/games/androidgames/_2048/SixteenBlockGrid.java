@@ -10,7 +10,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.keithmackay.games.androidgames.R;
-import com.keithmackay.games.androidgames.allgames.ScoreChangeHandler;
+import com.keithmackay.games.androidgames.common.ScoreChangeHandler;
 
 import java.util.ArrayList;
 

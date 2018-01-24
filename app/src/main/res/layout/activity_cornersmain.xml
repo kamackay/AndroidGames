@@ -43,7 +43,7 @@
             android:onClick="openSettings"
             android:src="@drawable/ic_settings_white_24dp" />
 
-        <com.keithmackay.games.androidgames.allgames.GameTimer
+        <com.keithmackay.games.androidgames.common.GameTimer
             android:id="@+id/corners_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

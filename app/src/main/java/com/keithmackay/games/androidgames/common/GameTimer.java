@@ -1,4 +1,4 @@
-package com.keithmackay.games.androidgames.allgames;
+package com.keithmackay.games.androidgames.common;
 
 import android.content.Context;
 import android.util.AttributeSet;

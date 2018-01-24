@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.keithmackay.games.androidgames.R;
-import com.keithmackay.games.androidgames.allgames.GameActivity;
+import com.keithmackay.games.androidgames.common.GameActivity;
 
 import java.util.Locale;
 
